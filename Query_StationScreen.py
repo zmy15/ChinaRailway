@@ -2,9 +2,10 @@ import json
 import requests
 from api import API
 from datetime import datetime
+
+
 # from encoded_station_telecode import encoded_json
 # import base64
-
 
 def Query_StationScreen(station_name):
     # decoded_data = base64.b64decode(encoded_json.encode('utf-8')).decode('utf-8')
@@ -13,7 +14,11 @@ def Query_StationScreen(station_name):
     with open("station_telecodes.json", "r", encoding="utf-8") as f:
         station_telecodes = json.load(f)
 
-    station_telecode = station_telecodes.get(station_name, "null")
+    if station_name.endswith("站"):
+        station_name = station_name[:-1]
+    station_telecode = station_telecodes.get(station_name, None)
+    if not station_telecode:
+        raise ValueError(f"未找到车站信息，请检查车站名称是否正确！")
 
     json_data = {
         "params": {
@@ -23,7 +28,7 @@ def Query_StationScreen(station_name):
         "isSign": 0
     }
 
-    res = requests.post(API.api_StationScreen,json=json_data).json()
+    res = requests.post(API.api_StationScreen, json=json_data).json()
 
     data = []
     lists = res["data"]["list"]
